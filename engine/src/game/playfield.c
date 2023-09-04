@@ -1,0 +1,37 @@
+#include "playfield.h"
+
+#include <stddef.h>
+#include <malloc.h>
+
+bool Playfield_init(Playfield *this, uint8_t width, uint8_t height) {
+    this->width = width;
+    this->height = height;
+
+    this->tiles = (Tile *) malloc(sizeof(Tile) * width * height);
+
+    if (!this->tiles)
+        return false;
+
+    Playfield_reset(this);
+
+    return true;
+}
+
+void Playfield_destroy(Playfield *this) {
+    free(this->tiles);
+}
+
+void Playfield_reset(Playfield *this) {
+    for (int nTile = 0; nTile < (this->width * this->height); nTile++) {
+        int x = nTile % this->width;
+        int y = nTile / this->width;
+
+        bool isLand = (x <= 1 || y <= 1 || x >= (this->width - 2) || y >= (this->height - 2));
+
+        this->tiles[nTile] = isLand ? Tile_Land : Tile_Sea;
+    }
+}
+
+size_t Playfield_getSizeBytes(const Playfield *this) {
+    return sizeof(this->tiles[0]) * this->width * this->height;
+}

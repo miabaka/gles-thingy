@@ -1,6 +1,5 @@
 #include "playfield.h"
 
-#include <stddef.h>
 #include <malloc.h>
 
 bool Playfield_init(Playfield *this, uint8_t width, uint8_t height) {
@@ -34,4 +33,22 @@ void Playfield_reset(Playfield *this) {
 
 size_t Playfield_getSizeBytes(const Playfield *this) {
     return sizeof(this->tiles[0]) * this->width * this->height;
+}
+
+bool Playfield_isPositionValid(const Playfield *this, int x, int y) {
+    return x >= 0 && x < this->width && y >= 0 && y < this->height;
+}
+
+Tile Playfield_getTile(const Playfield *this, int x, int y) {
+    if (!Playfield_isPositionValid(this, x, y))
+        return Tile_Sea;
+
+    return this->tiles[y * this->width + x];
+}
+
+void Playfield_setTile(Playfield *this, int x, int y, Tile tile) {
+    if (!Playfield_isPositionValid(this, x, y))
+        return;
+
+    this->tiles[y * this->width + x] = tile;
 }

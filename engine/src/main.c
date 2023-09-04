@@ -48,6 +48,46 @@ static void printGlDebugMessage(
     printf("(gles debug) %s\n", message);
 }
 
+static void handleKeyPress(GLFWwindow *window, int key, int scancode, int action, int mods) {
+    if (action != GLFW_PRESS)
+        return;
+
+    Direction newDirection;
+
+    switch (key) {
+        case GLFW_KEY_LEFT:
+        case GLFW_KEY_A:
+            newDirection = Direction_Left;
+            break;
+
+        case GLFW_KEY_RIGHT:
+        case GLFW_KEY_D:
+            newDirection = Direction_Right;
+            break;
+
+        case GLFW_KEY_UP:
+        case GLFW_KEY_W:
+            newDirection = Direction_Up;
+            break;
+
+        case GLFW_KEY_DOWN:
+        case GLFW_KEY_S:
+            newDirection = Direction_Down;
+            break;
+
+        default:
+            return;
+    }
+
+    GameState *gameState = (GameState *) glfwGetWindowUserPointer(window);
+
+    InputState inputState = {
+            .direction = newDirection
+    };
+
+    GameState_applyInputState(gameState, &inputState);
+}
+
 int main() {
     glfwInit();
 
@@ -72,14 +112,26 @@ int main() {
 
     GLuint passthroughProgram = GlesUtils_createShaderProgram(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
 
-    GameState state;
-    GameState_init(&state, 80, 50);
-
     GameStateRenderer stateRenderer;
     GameStateRenderer_init(&stateRenderer);
 
+    GameState state;
+    GameState_init(&state, 80, 50);
+
+    glfwSetWindowUserPointer(window, &state);
+    glfwSetKeyCallback(window, handleKeyPress);
+
+    double lastTime = glfwGetTime();
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+
+        double time = glfwGetTime();
+        double timeDelta = time - lastTime;
+
+        lastTime = time;
+
+        GameState_update(&state, (float) timeDelta);
 
         GLuint texGameRender = GameStateRenderer_render(&stateRenderer, &state);
 

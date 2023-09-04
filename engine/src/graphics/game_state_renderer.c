@@ -192,8 +192,11 @@ static void prepareForState(GameStateRenderer *this, const GameState *state) {
     this->_texFieldState = createTexture(field->width, field->height);
 }
 
-static Tile *getTileAt(const Playfield *field, Tile *tiles, uint8_t x, uint8_t y) {
-    return &tiles[y * field->width + x];
+static void setTile(const Playfield *field, Tile *tiles, int x, int y, Tile tile) {
+    if (!Playfield_isPositionValid(field, x, y))
+        return;
+
+    tiles[y * field->width + x] = tile;
 }
 
 static void uploadFieldStateToGpu(GameStateRenderer *this, const GameState *state) {
@@ -216,11 +219,10 @@ static void uploadFieldStateToGpu(GameStateRenderer *this, const GameState *stat
         if (enemy->type == EnemyType_Disabled)
             continue;
 
-        *getTileAt(field, tiles, enemy->x, enemy->y) =
-                (enemy->type == EnemyType_Sea) ? Tile_SeaEnemy : Tile_LandEnemy;
+        setTile(field, tiles, enemy->x, enemy->y, (enemy->type == EnemyType_Sea) ? Tile_SeaEnemy : Tile_LandEnemy);
     }
 
-    *getTileAt(field, tiles, player->x, player->y) = Tile_PlayerHead;
+    setTile(field, tiles, player->x, player->y, Tile_PlayerHead);
 
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, field->width, field->height, GL_RED_INTEGER, GL_UNSIGNED_BYTE, tiles);
 }

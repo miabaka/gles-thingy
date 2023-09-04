@@ -101,6 +101,15 @@ int main() {
 
     GLFWwindow *window = glfwCreateWindow(640, 400, "Thingy?!", NULL, NULL);
 
+    if (!window) {
+        const char *errorDesc;
+        glfwGetError(&errorDesc);
+
+        printf("Failed to create window: %s\n", errorDesc ? errorDesc : "");
+
+        return 1;
+    }
+
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 

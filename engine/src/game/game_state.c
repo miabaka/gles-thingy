@@ -28,18 +28,6 @@ void GameState_destroy(GameState *this) {
     Playfield_destroy(&this->field);
 }
 
-static void fillSea(Playfield *field, int x, int y) {
-    if (Playfield_getTile(field, x, y) != Tile_Sea)
-        return;
-
-    Playfield_setTile(field, x, y, Tile_FillVisitedSea);
-
-    fillSea(field, x, y + 1);
-    fillSea(field, x, y - 1);
-    fillSea(field, x - 1, y);
-    fillSea(field, x + 1, y);
-}
-
 static void fill(GameState *state) {
     Playfield *field = &state->field;
 
@@ -49,7 +37,7 @@ static void fill(GameState *state) {
         if (enemy->type != EnemyType_Sea)
             continue;
 
-        fillSea(field, enemy->x, enemy->y);
+        Playfield_fillSea(field, enemy->x, enemy->y);
     }
 
     for (int nTile = 0; nTile < Playfield_getSizeTiles(field); nTile++) {

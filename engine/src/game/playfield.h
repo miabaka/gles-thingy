@@ -38,3 +38,5 @@ bool Playfield_isPositionValid(const Playfield *, int x, int y);
 Tile Playfield_getTile(const Playfield *, int x, int y);
 
 void Playfield_setTile(Playfield *, int x, int y, Tile tile);
+
+void Playfield_fillSea(Playfield *field, int x, int y);

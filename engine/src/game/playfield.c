@@ -56,3 +56,16 @@ void Playfield_setTile(Playfield *this, int x, int y, Tile tile) {
 
     this->tiles[y * this->width + x] = tile;
 }
+
+// TODO: implement it as scanline filling
+void Playfield_fillSea(Playfield *this, int x, int y) {
+    if (Playfield_getTile(this, x, y) != Tile_Sea)
+        return;
+
+    Playfield_setTile(this, x, y, Tile_FillVisitedSea);
+
+    Playfield_fillSea(this, x, y + 1);
+    Playfield_fillSea(this, x, y - 1);
+    Playfield_fillSea(this, x - 1, y);
+    Playfield_fillSea(this, x + 1, y);
+}

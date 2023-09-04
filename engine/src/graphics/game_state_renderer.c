@@ -199,7 +199,7 @@ static void setTile(const Playfield *field, Tile *tiles, int x, int y, Tile tile
     tiles[y * field->width + x] = tile;
 }
 
-static void uploadFieldStateToGpu(GameStateRenderer *this, const GameState *state) {
+static void uploadFieldStateToGpu(const GameState *state) {
     const Playfield *field = &state->field;
     const Player *player = &state->player;
 
@@ -238,7 +238,7 @@ GLuint GameStateRenderer_render(GameStateRenderer *this, const GameState *state)
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, this->_texFieldState);
 
-    uploadFieldStateToGpu(this, state);
+    uploadFieldStateToGpu(state);
 
     glUseProgram(this->_shaderProgram);
 

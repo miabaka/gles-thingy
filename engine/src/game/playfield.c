@@ -31,6 +31,10 @@ void Playfield_reset(Playfield *this) {
     }
 }
 
+size_t Playfield_getSizeTiles(const Playfield *this) {
+    return this->width * this->height;
+}
+
 size_t Playfield_getSizeBytes(const Playfield *this) {
     return sizeof(this->tiles[0]) * this->width * this->height;
 }

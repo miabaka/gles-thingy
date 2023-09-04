@@ -25,6 +25,8 @@ void Playfield_destroy(Playfield *);
 
 void Playfield_reset(Playfield *);
 
+size_t Playfield_getSizeTiles(const Playfield *);
+
 size_t Playfield_getSizeBytes(const Playfield *);
 
 bool Playfield_isPositionValid(const Playfield *, int x, int y);

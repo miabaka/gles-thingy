@@ -19,8 +19,14 @@ typedef struct {
     int y;
 } Player;
 
+typedef enum {
+    PlayerUpdateResult_None,
+    PlayerUpdateResult_TraceEnded,
+    PlayerUpdateResult_Death
+} PlayerUpdateResult;
+
 void Player_init(Player *);
 
 void Player_setDirection(Player *, Direction direction);
 
-void Player_update(Player *, Playfield *field);
+PlayerUpdateResult Player_update(Player *, Playfield *field);

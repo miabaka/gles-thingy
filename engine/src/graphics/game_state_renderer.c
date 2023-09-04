@@ -1,15 +1,6 @@
 #include "game_state_renderer.h"
 
-#ifdef _WIN32
-#include <malloc.h>
-#else
-#include <alloca.h>
-#endif
-
 #include <stddef.h>
-#include <string.h>
-
-#include "../utils/array.h"
 #include "gles_utils.h"
 
 static const uint8_t LEVEL_SKIN_DATA[32][4] = {
@@ -52,10 +43,10 @@ static const uint8_t LEVEL_SKIN_DATA[32][4] = {
 
 static const float QUAD_VERTICES[][2] = {
         {-1.f, -1.f},
-        {-1.f, 1.f},
-        {1.f,  1.f},
-        {1.f,  1.f},
-        {1.f,  -1.f},
+        {-1.f,  1.f},
+        { 1.f,  1.f},
+        { 1.f,  1.f},
+        { 1.f, -1.f},
         {-1.f, -1.f}
 };
 
@@ -201,30 +192,15 @@ static void setTile(const Playfield *field, Tile *tiles, int x, int y, Tile tile
 
 static void uploadFieldStateToGpu(const GameState *state) {
     const Playfield *field = &state->field;
-    const Player *player = &state->player;
 
-    size_t tileDataSize = Playfield_getSizeBytes(field);
-
-    // Why not? Playfield in worst case has size of sizeof(Tile) * 255 * 255 = 65025 bytes
-    Tile *tiles = alloca(tileDataSize);
-
-    if (!tiles)
-        return;
-
-    memcpy(tiles, field->tiles, tileDataSize);
-
-    for (int nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++) {
-        const Enemy *enemy = &state->enemies[nEnemy];
-
-        if (enemy->type == EnemyType_Disabled)
-            continue;
-
-        setTile(field, tiles, enemy->x, enemy->y, (enemy->type == EnemyType_Sea) ? Tile_SeaEnemy : Tile_LandEnemy);
-    }
-
-    setTile(field, tiles, player->x, player->y, Tile_PlayerHead);
-
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, field->width, field->height, GL_RED_INTEGER, GL_UNSIGNED_BYTE, tiles);
+    glTexSubImage2D(
+            GL_TEXTURE_2D,
+            0,
+            0, 0,
+            field->width, field->height,
+            GL_RED_INTEGER, GL_UNSIGNED_BYTE,
+            field->tiles
+    );
 }
 
 GLuint GameStateRenderer_render(GameStateRenderer *this, const GameState *state) {

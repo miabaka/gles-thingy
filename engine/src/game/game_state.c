@@ -79,3 +79,38 @@ void GameState_update(GameState *this, float timeDelta) {
 void GameState_applyInputState(GameState *this, const InputState *input) {
     Player_setDirection(&this->player, input->direction);
 }
+
+void GameState_bakeDynamicObjects(GameState *this) {
+    Playfield *field = &this->field;
+
+    this->_tileUnderPlayer = Playfield_getTile(field, this->player.x, this->player.y);
+    Playfield_setTile(field, this->player.x, this->player.y, Tile_PlayerHead);
+
+    for (int nEnemy = 0; nEnemy < ARRAY_SIZE(this->enemies); nEnemy++) {
+        const Enemy *enemy = &this->enemies[nEnemy];
+
+        if (enemy->type == EnemyType_Disabled)
+            continue;
+
+        this->_tilesUnderEnemies[nEnemy] = Playfield_replaceTile(
+                field,
+                enemy->x, enemy->y,
+                (enemy->type == EnemyType_Sea) ? Tile_SeaEnemy : Tile_LandEnemy
+        );
+    }
+}
+
+void GameState_unbakeDynamicObjects(GameState *this) {
+    Playfield *field = &this->field;
+
+    Playfield_setTile(field, this->player.x, this->player.y, this->_tileUnderPlayer);
+
+    for (int nEnemy = 0; nEnemy < ARRAY_SIZE(this->enemies); nEnemy++) {
+        const Enemy *enemy = &this->enemies[nEnemy];
+
+        if (enemy->type == EnemyType_Disabled)
+            continue;
+
+        Playfield_setTile(field, enemy->x, enemy->y, this->_tilesUnderEnemies[nEnemy]);
+    }
+}

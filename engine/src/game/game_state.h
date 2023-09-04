@@ -12,6 +12,8 @@ typedef struct {
     Player player;
     Enemy enemies[32];
     float _timeSinceLastUpdate;
+    Tile _tileUnderPlayer;
+    Tile _tilesUnderEnemies[32];
 } GameState;
 
 bool GameState_init(GameState *, uint8_t fieldWidth, uint8_t fieldHeight);
@@ -21,3 +23,7 @@ void GameState_destroy(GameState *);
 void GameState_update(GameState *, float timeDelta);
 
 void GameState_applyInputState(GameState *, const InputState *input);
+
+void GameState_bakeDynamicObjects(GameState *);
+
+void GameState_unbakeDynamicObjects(GameState *);

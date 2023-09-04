@@ -57,6 +57,18 @@ void Playfield_setTile(Playfield *this, int x, int y, Tile tile) {
     this->tiles[y * this->width + x] = tile;
 }
 
+Tile Playfield_replaceTile(Playfield *this, int x, int y, Tile newTile) {
+    if (!Playfield_isPositionValid(this, x, y))
+        return Tile_Sea;
+
+    Tile *tile = &this->tiles[y * this->width + x];
+
+    Tile initialTile = *tile;
+    *tile = newTile;
+
+    return initialTile;
+}
+
 // TODO: implement it as scanline filling
 void Playfield_fillSea(Playfield *this, int x, int y) {
     if (Playfield_getTile(this, x, y) != Tile_Sea)

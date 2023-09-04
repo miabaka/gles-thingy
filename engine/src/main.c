@@ -141,8 +141,11 @@ int main() {
         lastTime = time;
 
         GameState_update(&state, (float) timeDelta);
+        GameState_bakeDynamicObjects(&state);
 
         GLuint texGameRender = GameStateRenderer_render(&stateRenderer, &state);
+
+        GameState_unbakeDynamicObjects(&state);
 
         glViewport(0, 0, 640, 400);
 

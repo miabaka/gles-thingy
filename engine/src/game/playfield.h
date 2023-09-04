@@ -9,6 +9,7 @@ typedef enum : uint8_t {
     Tile_Sea = 0,
     Tile_Land,
     Tile_PlayerTrace,
+    // Normal-ish tiles tiles for rendering
     Tile_PlayerHead,
     Tile_SeaEnemy,
     Tile_LandEnemy,
@@ -38,5 +39,7 @@ bool Playfield_isPositionValid(const Playfield *, int x, int y);
 Tile Playfield_getTile(const Playfield *, int x, int y);
 
 void Playfield_setTile(Playfield *, int x, int y, Tile tile);
+
+Tile Playfield_replaceTile(Playfield *, int x, int y, Tile newTile);
 
 void Playfield_fillSea(Playfield *field, int x, int y);

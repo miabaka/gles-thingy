@@ -5,12 +5,16 @@
 #include <stdint.h>
 
 typedef enum : uint8_t {
+    // Normal tiles
     Tile_Sea = 0,
     Tile_Land,
     Tile_PlayerTrace,
     Tile_PlayerHead,
     Tile_SeaEnemy,
-    Tile_LandEnemy
+    Tile_LandEnemy,
+
+    // Special tiles for things like filling
+    Tile_FillVisitedSea = 10
 } Tile;
 
 typedef struct {

@@ -39,26 +39,23 @@ size_t Playfield_getSizeBytes(const Playfield *this) {
     return sizeof(this->tiles[0]) * this->width * this->height;
 }
 
-bool Playfield_isPositionValid(const Playfield *this, int x, int y) {
+bool Playfield_hasPoint(const Playfield *this, int x, int y) {
     return x >= 0 && x < this->width && y >= 0 && y < this->height;
 }
 
 Tile Playfield_getTile(const Playfield *this, int x, int y) {
-    if (!Playfield_isPositionValid(this, x, y))
-        return Tile_Sea;
-
-    return this->tiles[y * this->width + x];
+    return Playfield_hasPoint(this, x, y) ? this->tiles[y * this->width + x] : Tile_Sea;
 }
 
 void Playfield_setTile(Playfield *this, int x, int y, Tile tile) {
-    if (!Playfield_isPositionValid(this, x, y))
+    if (!Playfield_hasPoint(this, x, y))
         return;
 
     this->tiles[y * this->width + x] = tile;
 }
 
 Tile Playfield_replaceTile(Playfield *this, int x, int y, Tile newTile) {
-    if (!Playfield_isPositionValid(this, x, y))
+    if (!Playfield_hasPoint(this, x, y))
         return Tile_Sea;
 
     Tile *tile = &this->tiles[y * this->width + x];
@@ -67,17 +64,4 @@ Tile Playfield_replaceTile(Playfield *this, int x, int y, Tile newTile) {
     *tile = newTile;
 
     return initialTile;
-}
-
-// TODO: implement it as scanline filling
-void Playfield_fillSea(Playfield *this, int x, int y) {
-    if (Playfield_getTile(this, x, y) != Tile_Sea)
-        return;
-
-    Playfield_setTile(this, x, y, Tile_FillVisitedSea);
-
-    Playfield_fillSea(this, x, y + 1);
-    Playfield_fillSea(this, x, y - 1);
-    Playfield_fillSea(this, x - 1, y);
-    Playfield_fillSea(this, x + 1, y);
 }

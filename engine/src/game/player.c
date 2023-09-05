@@ -24,7 +24,7 @@ PlayerUpdateResult Player_update(Player *this, Playfield *field) {
     int newX = this->x + velX;
     int newY = this->y + velY;
 
-    if (!Playfield_isPositionValid(field, newX, newY))
+    if (!Playfield_hasPoint(field, newX, newY))
         return PlayerUpdateResult_None;
 
     Tile currentTile = Playfield_getTile(field, newX, newY);

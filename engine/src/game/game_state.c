@@ -37,7 +37,7 @@ static void fill(GameState *state) {
         if (enemy->type != EnemyType_Sea)
             continue;
 
-        Playfield_fillSea(field, enemy->x, enemy->y);
+        Playfield_fill(field, enemy->x, enemy->y, Tile_FillVisitedSea);
     }
 
     for (int nTile = 0; nTile < Playfield_getSizeTiles(field); nTile++) {
@@ -83,8 +83,7 @@ void GameState_applyInputState(GameState *this, const InputState *input) {
 void GameState_bakeDynamicObjects(GameState *this) {
     Playfield *field = &this->field;
 
-    this->_tileUnderPlayer = Playfield_getTile(field, this->player.x, this->player.y);
-    Playfield_setTile(field, this->player.x, this->player.y, Tile_PlayerHead);
+    this->_tileUnderPlayer = Playfield_replaceTile(field, this->player.x, this->player.y, Tile_PlayerHead);
 
     for (int nEnemy = 0; nEnemy < ARRAY_SIZE(this->enemies); nEnemy++) {
         const Enemy *enemy = &this->enemies[nEnemy];

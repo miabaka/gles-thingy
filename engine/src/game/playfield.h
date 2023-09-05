@@ -34,7 +34,7 @@ size_t Playfield_getSizeTiles(const Playfield *);
 
 size_t Playfield_getSizeBytes(const Playfield *);
 
-bool Playfield_isPositionValid(const Playfield *, int x, int y);
+bool Playfield_hasPoint(const Playfield *, int x, int y);
 
 Tile Playfield_getTile(const Playfield *, int x, int y);
 
@@ -42,4 +42,4 @@ void Playfield_setTile(Playfield *, int x, int y, Tile tile);
 
 Tile Playfield_replaceTile(Playfield *, int x, int y, Tile newTile);
 
-void Playfield_fillSea(Playfield *field, int x, int y);
+void Playfield_fill(Playfield *, int x, int y, Tile tile);

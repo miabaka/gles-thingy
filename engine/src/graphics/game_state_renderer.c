@@ -184,7 +184,7 @@ static void prepareForState(GameStateRenderer *this, const GameState *state) {
 }
 
 static void setTile(const Playfield *field, Tile *tiles, int x, int y, Tile tile) {
-    if (!Playfield_isPositionValid(field, x, y))
+    if (!Playfield_hasPoint(field, x, y))
         return;
 
     tiles[y * field->width + x] = tile;

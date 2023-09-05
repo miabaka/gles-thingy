@@ -12,6 +12,7 @@ add_executable(gles-thingy
         src/game/player.h
         src/game/playfield.c
         src/game/playfield.h
+        src/game/playfield_fill.c
         src/graphics/framebuffer.c
         src/graphics/framebuffer.h
         src/graphics/game_state_renderer.c
@@ -25,4 +26,4 @@ add_executable(gles-thingy
         src/utils/running_average.h
         src/main.c)
 
-target_link_libraries(gles-thingy glad glfw)
+target_link_libraries(gles-thingy genvector glad glfw)

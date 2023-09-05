@@ -102,9 +102,7 @@ void GameState_bakeDynamicObjects(GameState *this) {
 void GameState_unbakeDynamicObjects(GameState *this) {
     Playfield *field = &this->field;
 
-    Playfield_setTile(field, this->player.x, this->player.y, this->_tileUnderPlayer);
-
-    for (int nEnemy = 0; nEnemy < ARRAY_SIZE(this->enemies); nEnemy++) {
+    for (int nEnemy = ARRAY_SIZE(this->enemies) - 1; nEnemy >= 0; nEnemy--) {
         const Enemy *enemy = &this->enemies[nEnemy];
 
         if (enemy->type == EnemyType_Disabled)
@@ -112,4 +110,6 @@ void GameState_unbakeDynamicObjects(GameState *this) {
 
         Playfield_setTile(field, enemy->x, enemy->y, this->_tilesUnderEnemies[nEnemy]);
     }
+
+    Playfield_setTile(field, this->player.x, this->player.y, this->_tileUnderPlayer);
 }

@@ -86,9 +86,5 @@ static bool fill(Playfield *field, Span span, Tile srcTile, Tile dstTile) {
 
 bool Playfield_fill(Playfield *this, int x, int y, Tile tile) {
     Tile srcTile = Playfield_getTile(this, x, y);
-
-    if (tile == srcTile)
-        return false;
-
-    return fill(this, (Span) {x, y}, srcTile, tile);
+    return (tile == srcTile) || fill(this, (Span) {x, y}, srcTile, tile);
 }

@@ -26,4 +26,4 @@ add_executable(gles-thingy
         src/utils/running_average.h
         src/main.c)
 
-target_link_libraries(gles-thingy genvector glad glfw)
+target_link_libraries(gles-thingy glad glfw)

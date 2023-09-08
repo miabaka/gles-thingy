@@ -1,27 +1,49 @@
-#include <stdbool.h>
-#include <genvector/genvector.h>
 #include "playfield.h"
+
+#include "../utils/array.h"
 
 typedef struct {
     int x;
     int y;
 } Span;
 
-GVEC_INSTANTIATE(Span, span, GENA_USE_SAMPLE);
+typedef struct {
+    size_t _topIndex;
+    Span _spans[128];
+} SpanStack;
 
-static void fill(Playfield *field, Span span, Tile srcTile, Tile dstTile) {
+static void SpanStack_init(SpanStack *this) {
+    this->_topIndex = 0;
+}
+
+static bool SpanStack_isEmpty(const SpanStack *this) {
+    return this->_topIndex < 1;
+}
+
+static bool SpanStack_push(SpanStack *this, Span span) {
+    if (this->_topIndex >= ARRAY_SIZE(this->_spans))
+        return false;
+
+    this->_spans[this->_topIndex++] = span;
+
+    return true;
+}
+
+static Span SpanStack_pop(SpanStack *this) {
+    return SpanStack_isEmpty(this) ? (Span) {} : this->_spans[--this->_topIndex];
+}
+
+static bool fill(Playfield *field, Span span, Tile srcTile, Tile dstTile) {
     bool spanAbove;
     bool spanBelow;
 
-    gvec_span_h stack = gvec_span_new(32);
+    SpanStack stack;
 
-    if (!stack)
-        return;
+    SpanStack_init(&stack);
+    SpanStack_push(&stack, span);
 
-    gvec_span_push(&stack, span);
-
-    while (!gvec_empty(stack)) {
-        span = gvec_span_pop(stack);
+    while (!SpanStack_isEmpty(&stack)) {
+        span = SpanStack_pop(&stack);
 
         while (span.x >= 0 && Playfield_getTile(field, span.x, span.y) == srcTile)
             span.x--;
@@ -38,14 +60,18 @@ static void fill(Playfield *field, Span span, Tile srcTile, Tile dstTile) {
             bool tileBelowMatches = (Playfield_getTile(field, span.x, span.y + 1) == srcTile);
 
             if (!spanAbove && span.y > 0 && tileAboveMatches) {
-                gvec_span_push(&stack, (Span) {span.x, span.y - 1});
+                if (!SpanStack_push(&stack, (Span) {span.x, span.y - 1}))
+                    return false;
+
                 spanAbove = true;
             } else if (spanAbove && span.y > 0 && !tileAboveMatches) {
                 spanAbove = false;
             }
 
             if (!spanBelow && span.y < field->height - 1 && tileBelowMatches) {
-                gvec_span_push(&stack, (Span) {span.x, span.y + 1});
+                if (!SpanStack_push(&stack, (Span) {span.x, span.y + 1}))
+                    return false;
+
                 spanBelow = true;
             } else if (spanBelow && span.y < field->height - 1 && !tileBelowMatches) {
                 spanBelow = false;
@@ -55,14 +81,14 @@ static void fill(Playfield *field, Span span, Tile srcTile, Tile dstTile) {
         }
     }
 
-    gvec_free(stack);
+    return true;
 }
 
-void Playfield_fill(Playfield *this, int x, int y, Tile tile) {
+bool Playfield_fill(Playfield *this, int x, int y, Tile tile) {
     Tile srcTile = Playfield_getTile(this, x, y);
 
     if (tile == srcTile)
-        return;
+        return false;
 
-    fill(this, (Span) {x, y}, srcTile, tile);
+    return fill(this, (Span) {x, y}, srcTile, tile);
 }

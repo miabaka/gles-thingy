@@ -67,10 +67,13 @@ static void update(GameState *state) {
     fill(state);
 }
 
+// TODO: handle situations when update itself is lagging
 void GameState_update(GameState *this, float timeDelta) {
-    if (this->_timeSinceLastUpdate > 0.05f) {
+    const float tickDuration = 1.f / 20.f;
+
+    while (this->_timeSinceLastUpdate >= tickDuration) {
         update(this);
-        this->_timeSinceLastUpdate = 0.f;
+        this->_timeSinceLastUpdate -= tickDuration;
     }
 
     this->_timeSinceLastUpdate += timeDelta;

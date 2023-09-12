@@ -3,8 +3,13 @@
 void Player_init(Player *this) {
 	this->state = PlayerState_Idle;
 	this->direction = Direction_None;
-	this->x = 5;
-	this->y = 1;
+	this->x = 0;
+	this->y = 0;
+}
+
+void Player_setPosition(Player *this, int x, int y) {
+	this->x = x;
+	this->y = y;
 }
 
 void Player_setDirection(Player *this, Direction direction) {

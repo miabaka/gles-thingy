@@ -29,6 +29,8 @@ typedef enum {
 
 void Player_init(Player *);
 
+void Player_setPosition(Player *, int x, int y);
+
 void Player_setDirection(Player *, Direction direction);
 
 PlayerUpdateResult Player_update(Player *, const Playfield *field);

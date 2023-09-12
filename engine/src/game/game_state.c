@@ -7,6 +7,7 @@ bool GameState_init(GameState *this, uint8_t fieldWidth, uint8_t fieldHeight) {
 		return false;
 
 	Player_init(&this->player);
+	Player_setPosition(&this->player, fieldWidth / 2, 1);
 
 	for (int nEnemy = 0; nEnemy < ARRAY_SIZE(this->enemies); nEnemy++)
 		Enemy_init(&this->enemies[nEnemy]);

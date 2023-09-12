@@ -40,6 +40,8 @@ Tile Playfield_getTile(const Playfield *, int x, int y);
 
 void Playfield_setTile(Playfield *, int x, int y, Tile tile);
 
-Tile Playfield_replaceTile(Playfield *, int x, int y, Tile newTile);
+Tile Playfield_exchangeTile(Playfield *, int x, int y, Tile newTile);
+
+void Playfield_replaceTile(Playfield *, Tile oldTile, Tile newTile);
 
 bool Playfield_fill(Playfield *, int x, int y, Tile tile);

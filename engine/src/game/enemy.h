@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include "playfield.h"
 
 typedef enum {
 	EnemyType_Disabled,
@@ -10,8 +10,17 @@ typedef enum {
 
 typedef struct {
 	EnemyType type;
-	uint8_t x;
-	uint8_t y;
+	int x;
+	int y;
+	int velX;
+	int velY;
 } Enemy;
 
+typedef enum {
+	EnemyUpdateResult_None,
+	EnemyUpdateResult_TouchedTrace
+} EnemyUpdateResult;
+
 void Enemy_init(Enemy *);
+
+EnemyUpdateResult Enemy_update(Enemy *, const Playfield *field);

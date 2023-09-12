@@ -54,7 +54,7 @@ void Playfield_setTile(Playfield *this, int x, int y, Tile tile) {
 	this->tiles[y * this->width + x] = tile;
 }
 
-Tile Playfield_replaceTile(Playfield *this, int x, int y, Tile newTile) {
+Tile Playfield_exchangeTile(Playfield *this, int x, int y, Tile newTile) {
 	if (!Playfield_hasPoint(this, x, y))
 		return Tile_Sea;
 
@@ -64,4 +64,15 @@ Tile Playfield_replaceTile(Playfield *this, int x, int y, Tile newTile) {
 	*tile = newTile;
 
 	return initialTile;
+}
+
+void Playfield_replaceTile(Playfield *this, Tile oldTile, Tile newTile) {
+	for (int nTile = 0; nTile < Playfield_getSizeTiles(this); nTile++) {
+		Tile *tile = &this->tiles[nTile];
+
+		if (*tile != oldTile)
+			continue;
+
+		*tile = newTile;
+	}
 }

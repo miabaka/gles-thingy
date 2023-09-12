@@ -28,7 +28,7 @@ void GameState_destroy(GameState *this) {
 	Playfield_destroy(&this->field);
 }
 
-static void fill(GameState *state) {
+static void fillTracedArea(GameState *state) {
 	Playfield *field = &state->field;
 
 	for (int nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++) {
@@ -58,13 +58,48 @@ static void fill(GameState *state) {
 	}
 }
 
-static void update(GameState *state) {
-	PlayerUpdateResult playerUpdateResult = Player_update(&state->player, &state->field);
+static void updatePlayer(GameState *state) {
+	Player *player = &state->player;
 
-	if (playerUpdateResult != PlayerUpdateResult_TraceEnded)
+	PlayerUpdateResult result = Player_update(player, &state->field);
+
+	switch (result) {
+		case PlayerUpdateResult_SeaMove:
+			Playfield_setTile(&state->field, player->x, player->y, Tile_PlayerTrace);
+			break;
+
+		case PlayerUpdateResult_EnteredLand:
+			fillTracedArea(state);
+
+		default:
+			break;
+	}
+}
+
+static void killPlayer(GameState *state) {
+	Player_kill(&state->player);
+	Playfield_replaceTile(&state->field, Tile_PlayerTrace, Tile_Sea);
+}
+
+static bool updateEnemies(GameState *state) {
+	bool touchedTrace = false;
+
+	for (int nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++) {
+		EnemyUpdateResult result = Enemy_update(&state->enemies[nEnemy], &state->field);
+		touchedTrace |= (result == EnemyUpdateResult_TouchedTrace);
+	}
+
+	return touchedTrace;
+}
+
+static void update(GameState *state) {
+	if (!Player_isAlive(&state->player))
 		return;
 
-	fill(state);
+	updatePlayer(state);
+
+	if (updateEnemies(state))
+		killPlayer(state);
 }
 
 // TODO: handle situations when update itself is lagging
@@ -86,7 +121,7 @@ void GameState_applyInputState(GameState *this, const InputState *input) {
 void GameState_bakeDynamicObjects(GameState *this) {
 	Playfield *field = &this->field;
 
-	this->_tileUnderPlayer = Playfield_replaceTile(field, this->player.x, this->player.y, Tile_PlayerHead);
+	this->_tileUnderPlayer = Playfield_exchangeTile(field, this->player.x, this->player.y, Tile_PlayerHead);
 
 	for (int nEnemy = 0; nEnemy < ARRAY_SIZE(this->enemies); nEnemy++) {
 		const Enemy *enemy = &this->enemies[nEnemy];
@@ -94,7 +129,7 @@ void GameState_bakeDynamicObjects(GameState *this) {
 		if (enemy->type == EnemyType_Disabled)
 			continue;
 
-		this->_tilesUnderEnemies[nEnemy] = Playfield_replaceTile(
+		this->_tilesUnderEnemies[nEnemy] = Playfield_exchangeTile(
 				field,
 				enemy->x, enemy->y,
 				(enemy->type == EnemyType_Sea) ? Tile_SeaEnemy : Tile_LandEnemy

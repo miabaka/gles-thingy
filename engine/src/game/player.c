@@ -14,8 +14,8 @@ void Player_setDirection(Player *this, Direction direction) {
 	this->direction = direction;
 }
 
-PlayerUpdateResult Player_update(Player *this, Playfield *field) {
-	if (this->direction == Direction_None || this->state == PlayerState_Died)
+PlayerUpdateResult Player_update(Player *this, const Playfield *field) {
+	if (this->direction == Direction_None || this->state == PlayerState_Dead)
 		return PlayerUpdateResult_None;
 
 	int velX, velY;
@@ -30,8 +30,8 @@ PlayerUpdateResult Player_update(Player *this, Playfield *field) {
 	Tile currentTile = Playfield_getTile(field, newX, newY);
 
 	if (currentTile == Tile_PlayerTrace) {
-		this->state = PlayerState_Died;
-		return PlayerUpdateResult_Death;
+		this->state = PlayerState_Dead;
+		return PlayerUpdateResult_Died;
 	}
 
 	this->x = newX;
@@ -49,10 +49,16 @@ PlayerUpdateResult Player_update(Player *this, Playfield *field) {
 	if (currentTile == Tile_Land) {
 		this->state = PlayerState_Idle;
 		this->direction = Direction_None;
-		return PlayerUpdateResult_TraceEnded;
+		return PlayerUpdateResult_EnteredLand;
 	}
 
-	Playfield_setTile(field, newX, newY, Tile_PlayerTrace);
+	return PlayerUpdateResult_SeaMove;
+}
 
-	return PlayerUpdateResult_None;
+bool Player_isAlive(const Player *this) {
+	return this->state != PlayerState_Dead;
+}
+
+void Player_kill(Player *this) {
+	this->state = PlayerState_Dead;
 }

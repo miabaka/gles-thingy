@@ -1,0 +1,17 @@
+---
+# options: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+BasedOnStyle: LLVM
+
+ColumnLimit: 120
+IndentWidth: 4
+ContinuationIndentWidth: 8
+TabWidth: 4
+UseTab: AlignWithSpaces
+
+SpaceAfterCStyleCast: true
+SpaceBeforeCpp11BracedList: true
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+IndentCaseLabels: true
+SortIncludes: false
+AlwaysBreakBeforeMultilineStrings: true

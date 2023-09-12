@@ -5,23 +5,23 @@
 #include <stdint.h>
 
 typedef enum : uint8_t {
-    // Normal tiles
-    Tile_Sea = 0,
-    Tile_Land,
-    Tile_PlayerTrace,
-    // Normal-ish tiles tiles for rendering
-    Tile_PlayerHead,
-    Tile_SeaEnemy,
-    Tile_LandEnemy,
+	// Normal tiles
+	Tile_Sea = 0,
+	Tile_Land,
+	Tile_PlayerTrace,
+	// Normal-ish tiles tiles for rendering
+	Tile_PlayerHead,
+	Tile_SeaEnemy,
+	Tile_LandEnemy,
 
-    // Special tiles for things like filling
-    Tile_FillVisitedSea = 10
+	// Special tiles for things like filling
+	Tile_FillVisitedSea = 10
 } Tile;
 
 typedef struct {
-    Tile *tiles;
-    uint8_t width;
-    uint8_t height;
+	Tile *tiles;
+	uint8_t width;
+	uint8_t height;
 } Playfield;
 
 bool Playfield_init(Playfield *, uint8_t width, uint8_t height);

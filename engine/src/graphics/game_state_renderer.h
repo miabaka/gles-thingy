@@ -9,13 +9,13 @@
 #include <glad/gles2.h>
 
 typedef struct {
-    Framebuffer _fb;
-    GLuint _texFieldState;
-    GLuint _texLevelSkin;
-    GLuint _shaderProgram;
-    uint8_t _lastFieldWidth;
-    uint8_t _lastFieldHeight;
-    bool _bufferInitialized;
+	Framebuffer _fb;
+	GLuint _texFieldState;
+	GLuint _texLevelSkin;
+	GLuint _shaderProgram;
+	uint8_t _lastFieldWidth;
+	uint8_t _lastFieldHeight;
+	bool _bufferInitialized;
 } GameStateRenderer;
 
 void GameStateRenderer_init(GameStateRenderer *);

@@ -8,12 +8,12 @@
 #include "playfield.h"
 
 typedef struct {
-    Playfield field;
-    Player player;
-    Enemy enemies[32];
-    float _timeSinceLastUpdate;
-    Tile _tileUnderPlayer;
-    Tile _tilesUnderEnemies[32];
+	Playfield field;
+	Player player;
+	Enemy enemies[32];
+	float _timeSinceLastUpdate;
+	Tile _tileUnderPlayer;
+	Tile _tilesUnderEnemies[32];
 } GameState;
 
 bool GameState_init(GameState *, uint8_t fieldWidth, uint8_t fieldHeight);

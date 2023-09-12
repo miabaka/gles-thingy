@@ -76,11 +76,6 @@ static void updatePlayer(GameState *state) {
 	}
 }
 
-static void killPlayer(GameState *state) {
-	Player_kill(&state->player);
-	Playfield_replaceTile(&state->field, Tile_PlayerTrace, Tile_Sea);
-}
-
 static bool updateEnemies(GameState *state) {
 	bool touchedTrace = false;
 
@@ -99,7 +94,7 @@ static void update(GameState *state) {
 	updatePlayer(state);
 
 	if (updateEnemies(state))
-		killPlayer(state);
+		Player_kill(&state->player);
 }
 
 // TODO: handle situations when update itself is lagging

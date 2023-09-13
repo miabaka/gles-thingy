@@ -45,3 +45,5 @@ Tile Playfield_exchangeTile(Playfield *, int x, int y, Tile newTile);
 void Playfield_replaceTile(Playfield *, Tile oldTile, Tile newTile);
 
 bool Playfield_fill(Playfield *, int x, int y, Tile tile);
+
+float Playfield_computeTileFraction(const Playfield *this, Tile tile);

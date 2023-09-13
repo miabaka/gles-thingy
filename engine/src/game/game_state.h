@@ -14,6 +14,8 @@ typedef struct {
 	float _timeSinceLastUpdate;
 	Tile _tileUnderPlayer;
 	Tile _tilesUnderEnemies[32];
+	int _landX;
+	int _landY;
 } GameState;
 
 bool GameState_init(GameState *, uint8_t fieldWidth, uint8_t fieldHeight);

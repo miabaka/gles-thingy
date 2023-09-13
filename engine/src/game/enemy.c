@@ -44,10 +44,11 @@ EnemyUpdateResult Enemy_update(Enemy *this, const Playfield *field) {
 	if (this->type != EnemyType_Sea)
 		return EnemyUpdateResult_None;
 
-	bool touchedTrace = hasTouchedTrace(this, field);
+	if (hasTouchedTrace(this, field))
+		return EnemyUpdateResult_TouchedTrace;
 
 	updateVelocity(this, field);
 	applyVelocity(this);
 
-	return touchedTrace ? EnemyUpdateResult_TouchedTrace : EnemyUpdateResult_None;
+	return EnemyUpdateResult_None;
 }

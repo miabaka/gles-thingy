@@ -1,26 +1,46 @@
 #include "game_state.h"
 
+#include <assert.h>
 #include "../utils/array.h"
+
+static void resetPlayer(GameState *state) {
+	Player *player = &state->player;
+	Player_reset(player);
+	Player_setPosition(player, state->_landX, state->_landY);
+}
+
+static void reset(GameState *state, bool resetField) {
+	if (resetField)
+		Playfield_reset(&state->field);
+
+	state->_landX = state->field.width / 2;
+	state->_landY = 1;
+
+	state->_timeSinceLastUpdate = 0.f;
+
+	resetPlayer(state);
+
+	for (int nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++)
+		// Actually, multiple initializations is fine because enemies don't allocate
+		// any dynamic memory so it acts like an reset
+		// TODO: separate reset and init routines
+		Enemy_init(&state->enemies[nEnemy]);
+
+	state->enemies[0].type = EnemyType_Sea;
+	state->enemies[0].x = 10;
+	state->enemies[0].y = 10;
+
+	state->enemies[1].type = EnemyType_Sea;
+	state->enemies[1].x = 70;
+	state->enemies[1].y = 40;
+}
 
 bool GameState_init(GameState *this, uint8_t fieldWidth, uint8_t fieldHeight) {
 	if (!Playfield_init(&this->field, fieldWidth, fieldHeight))
 		return false;
 
 	Player_init(&this->player);
-	Player_setPosition(&this->player, fieldWidth / 2, 1);
-
-	for (int nEnemy = 0; nEnemy < ARRAY_SIZE(this->enemies); nEnemy++)
-		Enemy_init(&this->enemies[nEnemy]);
-
-	this->enemies[0].type = EnemyType_Sea;
-	this->enemies[0].x = 10;
-	this->enemies[0].y = 10;
-
-	this->enemies[1].type = EnemyType_Sea;
-	this->enemies[1].x = 70;
-	this->enemies[1].y = 40;
-
-	this->_timeSinceLastUpdate = 0.f;
+	reset(this, false);	
 
 	return true;
 }
@@ -59,6 +79,44 @@ static void fillTracedArea(GameState *state) {
 	}
 }
 
+static void returnPlayerToLand(GameState *state) {
+	Player *player = &state->player;
+	Player_resetMovement(player);
+	Player_setPosition(player, state->_landX, state->_landY);
+}
+
+static void clearPlayerTrace(GameState *state) {
+	Playfield_replaceTile(&state->field, Tile_PlayerTrace, Tile_Sea);
+}
+
+static void handlePlayerDeath(GameState *state) {
+	if (!Player_isAlive(&state->player)) {
+		reset(state, true);
+		return;
+	}
+
+	returnPlayerToLand(state);
+	clearPlayerTrace(state);
+}
+
+static void adjustLandPosition(GameState *state) {
+	state->_landX = state->player.x;
+	state->_landY = state->player.y;
+}
+
+static void prepareNextLevel(GameState *state) {
+	reset(state, true);
+}
+
+static void checkWinCondition(GameState *state) {
+	float landRatio = Playfield_computeTileFraction(&state->field, Tile_Land);
+
+	if (landRatio < 0.75f)
+		return;
+
+	prepareNextLevel(state);
+}
+
 static void updatePlayer(GameState *state) {
 	Player *player = &state->player;
 
@@ -71,31 +129,42 @@ static void updatePlayer(GameState *state) {
 
 		case PlayerUpdateResult_EnteredLand:
 			fillTracedArea(state);
+			checkWinCondition(state);
+			break;
+
+		case PlayerUpdateResult_Died:
+			handlePlayerDeath(state);
 
 		default:
 			break;
 	}
+
+	if (result == PlayerUpdateResult_SeaMove)
+		return;
+
+	adjustLandPosition(state);
 }
 
-static bool updateEnemies(GameState *state) {
-	bool touchedTrace = false;
-
+static void updateEnemies(GameState *state) {
 	for (int nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++) {
 		EnemyUpdateResult result = Enemy_update(&state->enemies[nEnemy], &state->field);
-		touchedTrace |= (result == EnemyUpdateResult_TouchedTrace);
-	}
 
-	return touchedTrace;
+		if (result == EnemyUpdateResult_TouchedTrace)
+			Player_kill(&state->player);
+	}
 }
 
 static void update(GameState *state) {
-	if (!Player_isAlive(&state->player))
-		return;
+	Player *player = &state->player;
+
+	assert(Player_isAlive(player));
+
+	// TODO: check this condition based on game settings
+	if (Player_willTouchTraceNextUpdate(player, &state->field))
+		Player_kill(player);
 
 	updatePlayer(state);
-
-	if (updateEnemies(state))
-		Player_kill(&state->player);
+	updateEnemies(state);
 }
 
 // TODO: handle situations when update itself is lagging

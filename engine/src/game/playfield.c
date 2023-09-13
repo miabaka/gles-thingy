@@ -76,3 +76,15 @@ void Playfield_replaceTile(Playfield *this, Tile oldTile, Tile newTile) {
 		*tile = newTile;
 	}
 }
+
+float Playfield_computeTileFraction(const Playfield *this, Tile tile) {
+	size_t tileCount = 0;
+	size_t totalTileCount = Playfield_getSizeTiles(this);
+
+	for (size_t nTile = 0; nTile < totalTileCount; nTile++) {
+		if (this->tiles[nTile] == tile)
+			tileCount++;
+	}
+
+	return (float) tileCount / (float) totalTileCount;
+}

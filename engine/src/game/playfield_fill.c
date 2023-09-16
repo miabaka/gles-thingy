@@ -30,7 +30,7 @@ static bool SpanStack_push(SpanStack *this, Span span) {
 }
 
 static Span SpanStack_pop(SpanStack *this) {
-	return SpanStack_isEmpty(this) ? (Span) {} : this->_spans[--this->_topIndex];
+	return SpanStack_isEmpty(this) ? (Span) {0} : this->_spans[--this->_topIndex];
 }
 
 static bool fill(Playfield *field, Span span, Tile srcTile, Tile dstTile) {

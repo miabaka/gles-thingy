@@ -27,6 +27,6 @@ add_executable(gles-thingy
 
 target_compile_options(gles-thingy PRIVATE
 		-Wall -Wextra -Wpedantic
-		-Wno-newline-eof -Wno-fixed-enum-extension -Wno-gnu-empty-initializer)
+		-Wno-newline-eof -Wno-gnu-empty-initializer)
 
 target_link_libraries(gles-thingy glad glfw)

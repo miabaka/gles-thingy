@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef enum : uint8_t {
+typedef enum __attribute__((packed)) {
 	// Normal tiles
 	Tile_Sea = 0,
 	Tile_Land,

@@ -1,7 +1,7 @@
 #include "game_state.h"
 
 #include <assert.h>
-#include "../utils/array.h"
+#include "../utils/common.h"
 
 static void resetPlayer(GameState *state) {
 	Player *player = &state->player;

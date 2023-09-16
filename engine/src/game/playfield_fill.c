@@ -1,6 +1,6 @@
 #include "playfield.h"
 
-#include "../utils/array.h"
+#include "../utils/common.h"
 
 typedef struct {
 	int x;

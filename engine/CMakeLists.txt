@@ -22,7 +22,7 @@ add_executable(gles-thingy
 		src/graphics/game_state_renderer.h
 		src/graphics/gles_utils.c
 		src/graphics/gles_utils.h
-		src/utils/array.h
+		src/utils/common.h
 		src/main.c)
 
 target_compile_options(gles-thingy PRIVATE

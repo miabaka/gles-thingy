@@ -10,6 +10,7 @@
 #include "game/game_state.h"
 #include "graphics/game_state_renderer.h"
 #include "graphics/gles_utils.h"
+#include "utils/common.h"
 
 static const float QUAD_VERTICES[][2] = {
 		{-1.f, -1.f},
@@ -45,10 +46,20 @@ static const char FRAGMENT_SHADER_SOURCE[] =
 static void printGlDebugMessage(
 		GLenum source, GLenum type, GLuint id, GLenum severity,
 		GLsizei length, const GLchar *message, const void *userParam) {
+	UNUSED(source);
+	UNUSED(type);
+	UNUSED(id);
+	UNUSED(severity);
+	UNUSED(length);
+	UNUSED(userParam);
+
 	printf("(gles debug) %s\n", message);
 }
 
 static void handleKeyPress(GLFWwindow *window, int key, int scancode, int action, int mods) {
+	UNUSED(scancode);
+	UNUSED(mods);
+
 	if (action != GLFW_PRESS)
 		return;
 

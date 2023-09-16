@@ -112,7 +112,7 @@ static GLuint createTexture(int width, int height) {
 	return texture;
 }
 
-static GLuint createLevelSkinTexture() {
+static GLuint createLevelSkinTexture(void) {
 	GLuint texture = createTexture(4, 32);
 
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -123,7 +123,7 @@ static GLuint createLevelSkinTexture() {
 	return texture;
 }
 
-static GLuint createShaderProgram() {
+static GLuint createShaderProgram(void) {
 	GLuint program = GlesUtils_createShaderProgram(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
 
 	glUseProgram(program);
@@ -181,13 +181,6 @@ static void prepareForState(GameStateRenderer *this, const GameState *state) {
 	Framebuffer_init(&this->_fb, field->width * 4, field->height * 4);
 
 	this->_texFieldState = createTexture(field->width, field->height);
-}
-
-static void setTile(const Playfield *field, Tile *tiles, int x, int y, Tile tile) {
-	if (!Playfield_hasPoint(field, x, y))
-		return;
-
-	tiles[y * field->width + x] = tile;
 }
 
 static void uploadFieldStateToGpu(const GameState *state) {

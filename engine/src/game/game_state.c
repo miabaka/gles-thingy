@@ -20,7 +20,7 @@ static void reset(GameState *state, bool resetField) {
 
 	resetPlayer(state);
 
-	for (int nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++)
+	for (size_t nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++)
 		// Actually, multiple initializations is fine because enemies don't allocate
 		// any dynamic memory so it acts like an reset
 		// TODO: separate reset and init routines
@@ -52,7 +52,7 @@ void GameState_destroy(GameState *this) {
 static void fillTracedArea(GameState *state) {
 	Playfield *field = &state->field;
 
-	for (int nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++) {
+	for (size_t nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++) {
 		const Enemy *enemy = &state->enemies[nEnemy];
 
 		if (enemy->type != EnemyType_Sea)
@@ -61,7 +61,7 @@ static void fillTracedArea(GameState *state) {
 		Playfield_fill(field, enemy->x, enemy->y, Tile_FillVisitedSea);
 	}
 
-	for (int nTile = 0; nTile < Playfield_getSizeTiles(field); nTile++) {
+	for (size_t nTile = 0; nTile < Playfield_getSizeTiles(field); nTile++) {
 		Tile *tile = &field->tiles[nTile];
 
 		switch (*tile) {
@@ -146,7 +146,7 @@ static void updatePlayer(GameState *state) {
 }
 
 static void updateEnemies(GameState *state) {
-	for (int nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++) {
+	for (size_t nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++) {
 		EnemyUpdateResult result = Enemy_update(&state->enemies[nEnemy], &state->field);
 
 		if (result == EnemyUpdateResult_TouchedTrace)
@@ -188,7 +188,7 @@ void GameState_bakeDynamicObjects(GameState *this) {
 
 	this->_tileUnderPlayer = Playfield_exchangeTile(field, this->player.x, this->player.y, Tile_PlayerHead);
 
-	for (int nEnemy = 0; nEnemy < ARRAY_SIZE(this->enemies); nEnemy++) {
+	for (size_t nEnemy = 0; nEnemy < ARRAY_SIZE(this->enemies); nEnemy++) {
 		const Enemy *enemy = &this->enemies[nEnemy];
 
 		if (enemy->type == EnemyType_Disabled)

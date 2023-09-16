@@ -67,7 +67,7 @@ Tile Playfield_exchangeTile(Playfield *this, int x, int y, Tile newTile) {
 }
 
 void Playfield_replaceTile(Playfield *this, Tile oldTile, Tile newTile) {
-	for (int nTile = 0; nTile < Playfield_getSizeTiles(this); nTile++) {
+	for (size_t nTile = 0; nTile < Playfield_getSizeTiles(this); nTile++) {
 		Tile *tile = &this->tiles[nTile];
 
 		if (*tile != oldTile)

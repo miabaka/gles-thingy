@@ -88,7 +88,7 @@ static void handleKeyPress(GLFWwindow *window, int key, int scancode, int action
 	GameState_applyInputState(gameState, &inputState);
 }
 
-int main() {
+int main(void) {
 	glfwInit();
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);

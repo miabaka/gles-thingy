@@ -11,6 +11,7 @@
 #include "graphics/game_state_renderer.h"
 #include "graphics/gles_utils.h"
 #include "utils/common.h"
+#include "utils/frame_counter.h"
 
 static const float QUAD_VERTICES[][2] = {
 		{-1.f, -1.f},
@@ -143,6 +144,9 @@ int main(void) {
 
 	double lastTime = glfwGetTime();
 
+	FrameCounter frameCounter;
+	FrameCounter_init(&frameCounter, 1.);
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 
@@ -150,6 +154,8 @@ int main(void) {
 		double timeDelta = time - lastTime;
 
 		lastTime = time;
+
+		FrameCounter_newFrame(&frameCounter, timeDelta);
 
 		GameState_update(&state, (float) timeDelta);
 		GameState_bakeDynamicObjects(&state);

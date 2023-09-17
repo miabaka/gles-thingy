@@ -23,6 +23,8 @@ add_executable(gles-thingy
 		src/graphics/gles_utils.c
 		src/graphics/gles_utils.h
 		src/utils/common.h
+		src/utils/frame_counter.c
+		src/utils/frame_counter.h
 		src/main.c)
 
 target_compile_options(gles-thingy PRIVATE

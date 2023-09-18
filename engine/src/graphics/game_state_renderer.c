@@ -1,44 +1,57 @@
 #include "game_state_renderer.h"
 
 #include <stddef.h>
+
+#include "../utils/common.h"
 #include "gles_utils.h"
 
-static const uint8_t LEVEL_SKIN_DATA[32][4] = {
+typedef struct __attribute__((packed)) {
+	uint8_t r, g, b, a;
+} Rgba32Color;
+
+static const Rgba32Color TILE_ATLAS_PALETTE[] = {
+	{0x00, 0x00, 0x00, 0xff},
+	{0x00, 0xaa, 0xaa, 0xff},
+	{0xaa, 0x00, 0xaa, 0xff},
+	{0xaa, 0xaa, 0xaa, 0xff}
+};
+
+static const uint8_t TILE_ATLAS_INDICES[] = {
 		// Sea
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
+		0, 0, 0, 0,
+		0, 0, 0, 0,
+		0, 0, 0, 0,
+		0, 0, 0, 0,
 
 		// Land
-		{1, 1, 1, 1},
-		{1, 1, 1, 1},
-		{1, 1, 1, 1},
-		{1, 1, 1, 1},
+		1, 1, 1, 1,
+		1, 1, 1, 1,
+		1, 1, 1, 1,
+		1, 1, 1, 1,
 
 		// Player's Trace
-		{2, 2, 2, 2},
-		{2, 2, 2, 2},
-		{2, 2, 2, 2},
-		{2, 2, 2, 2},
+		2, 2, 2, 2,
+		2, 2, 2, 2,
+		2, 2, 2, 2,
+		2, 2, 2, 2,
 
 		// Player's Head
-		{3, 3, 3, 3},
-		{3, 2, 2, 3},
-		{3, 2, 2, 3},
-		{3, 3, 3, 3},
+		3, 3, 3, 3,
+		3, 2, 2, 3,
+		3, 2, 2, 3,
+		3, 3, 3, 3,
 
 		// Sea Enemy
-		{0, 3, 3, 0},
-		{3, 1, 1, 3},
-		{3, 1, 1, 3},
-		{0, 3, 3, 0},
+		0, 3, 3, 0,
+		3, 1, 1, 3,
+		3, 1, 1, 3,
+		0, 3, 3, 0,
 
 		// Land Enemy
-		{0, 0, 0, 0},
-		{0, 1, 1, 0},
-		{0, 1, 1, 0},
-		{0, 0, 0, 0}
+		0, 0, 0, 0,
+		0, 1, 1, 0,
+		0, 1, 1, 0,
+		0, 0, 0, 0
 };
 
 static const float QUAD_VERTICES[][2] = {
@@ -65,19 +78,12 @@ static const char FRAGMENT_SHADER_SOURCE[] =
 		"precision mediump float;\n"
 		"precision mediump usampler2D;\n"
 		"\n"
-		"uniform usampler2D texLevelSkin;\n"
+		"uniform sampler2D texTileAtlas;\n"
 		"uniform usampler2D texFieldState;\n"
 		"\n"
 		"out vec4 outColor;\n"
 		"\n"
 		"const uvec2 TILE_SIZE = uvec2(4);\n"
-		"\n"
-		"const vec4 PALETTE[] = vec4[](\n"
-		"    vec4(0x00, 0x00, 0x00, 0xff) / float(0xff),\n"
-		"    vec4(0x00, 0xaa, 0xaa, 0xff) / float(0xff),\n"
-		"    vec4(0xaa, 0x00, 0xaa, 0xff) / float(0xff),\n"
-		"    vec4(0xaa, 0xaa, 0xaa, 0xff) / float(0xff)\n"
-		");"
 		"\n"
 		"void main() {\n"
 		"    uvec2 screenPos = uvec2(gl_FragCoord.x, 199u - uint(gl_FragCoord.y));\n"
@@ -86,15 +92,13 @@ static const char FRAGMENT_SHADER_SOURCE[] =
 		"\n"
 		"    uint tileVariant = texelFetch(texFieldState, ivec2(tile), 0).r;\n"
 		"\n"
-		"    uvec2 skinOffset = uvec2(0, TILE_SIZE.y * tileVariant);\n"
-		"    uvec2 skinTexCoords = tilePos + skinOffset;\n"
+		"    uvec2 atlasOffset = uvec2(0, TILE_SIZE.y * tileVariant);\n"
+		"    uvec2 atlasTexCoords = tilePos + atlasOffset;\n"
 		"\n"
-		"    uint paletteIndex = texelFetch(texLevelSkin, ivec2(skinTexCoords), 0).r;\n"
-		"\n"
-		"    outColor = PALETTE[paletteIndex];\n"
+		"    outColor = texelFetch(texTileAtlas, ivec2(atlasTexCoords), 0);\n"
 		"}\n";
 
-static GLuint createTexture(int width, int height) {
+static GLuint createTexture(int width, int height, GLenum internalFormat) {
 	GLuint texture;
 	glGenTextures(1, &texture);
 
@@ -105,18 +109,23 @@ static GLuint createTexture(int width, int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_R8UI, width, height);
+	glTexStorage2D(GL_TEXTURE_2D, 1, internalFormat, width, height);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return texture;
 }
 
-static GLuint createLevelSkinTexture(void) {
-	GLuint texture = createTexture(4, 32);
+static GLuint createTileAtlasTexture(void) {
+	Rgba32Color pixelData[4 * 32] = {0};
+
+	for (size_t i = 0; i < ARRAY_SIZE(TILE_ATLAS_INDICES); i++)
+		pixelData[i] = TILE_ATLAS_PALETTE[TILE_ATLAS_INDICES[i]];
+
+	GLuint texture = createTexture(4, 32, GL_RGBA8);
 
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 4, 32, GL_RED_INTEGER, GL_UNSIGNED_BYTE, LEVEL_SKIN_DATA);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 4, 32, GL_RGBA, GL_UNSIGNED_BYTE, pixelData);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -128,7 +137,7 @@ static GLuint createShaderProgram(void) {
 
 	glUseProgram(program);
 
-	glUniform1i(glGetUniformLocation(program, "texLevelSkin"), 0);
+	glUniform1i(glGetUniformLocation(program, "texTileAtlas"), 0);
 	glUniform1i(glGetUniformLocation(program, "texFieldState"), 1);
 
 	glUseProgram(0);
@@ -143,13 +152,13 @@ void GameStateRenderer_init(GameStateRenderer *this) {
 	this->_lastFieldHeight = 0;
 
 	this->_texFieldState = 0;
-	this->_texLevelSkin = createLevelSkinTexture();
+	this->_texTileAtlas = createTileAtlasTexture();
 	this->_shaderProgram = createShaderProgram();
 }
 
 void GameStateRenderer_destroy(GameStateRenderer *this) {
 	glDeleteProgram(this->_shaderProgram);
-	glDeleteTextures(1, &this->_texLevelSkin);
+	glDeleteTextures(1, &this->_texTileAtlas);
 
 	if (!this->_bufferInitialized)
 		return;
@@ -180,7 +189,7 @@ static void prepareForState(GameStateRenderer *this, const GameState *state) {
 
 	Framebuffer_init(&this->_fb, field->width * 4, field->height * 4);
 
-	this->_texFieldState = createTexture(field->width, field->height);
+	this->_texFieldState = createTexture(field->width, field->height, GL_R8UI);
 }
 
 static void uploadFieldStateToGpu(const GameState *state) {
@@ -202,7 +211,7 @@ GLuint GameStateRenderer_render(GameStateRenderer *this, const GameState *state)
 	Framebuffer_useForDrawing(&this->_fb, true);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, this->_texLevelSkin);
+	glBindTexture(GL_TEXTURE_2D, this->_texTileAtlas);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, this->_texFieldState);

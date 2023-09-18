@@ -11,7 +11,7 @@
 typedef struct {
 	Framebuffer _fb;
 	GLuint _texFieldState;
-	GLuint _texLevelSkin;
+	GLuint _texTileAtlas;
 	GLuint _shaderProgram;
 	uint8_t _lastFieldWidth;
 	uint8_t _lastFieldHeight;

@@ -36,6 +36,8 @@ static void reset(GameState *state, bool resetField) {
 }
 
 bool GameState_init(GameState *this, uint8_t fieldWidth, uint8_t fieldHeight) {
+	this->_inputHandled = true;
+
 	if (!Playfield_init(&this->field, fieldWidth, fieldHeight))
 		return false;
 
@@ -154,10 +156,21 @@ static void updateEnemies(GameState *state) {
 	}
 }
 
+static void handleInput(GameState *state) {
+	if (state->_inputHandled)
+		return;
+
+	Player_setDirection(&state->player, state->_inputState.direction);
+	
+	state->_inputHandled = true;
+}
+
 static void update(GameState *state) {
 	Player *player = &state->player;
 
 	assert(Player_isAlive(player));
+
+	handleInput(state);
 
 	// TODO: check this condition based on game settings
 	if (Player_willTouchTraceNextUpdate(player, &state->field))
@@ -179,8 +192,9 @@ void GameState_update(GameState *this, float timeDelta) {
 	this->_timeSinceLastUpdate += timeDelta;
 }
 
-void GameState_applyInputState(GameState *this, const InputState *input) {
-	Player_setDirection(&this->player, input->direction);
+void GameState_setInputState(GameState *this, const InputState *input) {
+	this->_inputState = *input;
+	this->_inputHandled = false;
 }
 
 void GameState_bakeDynamicObjects(GameState *this) {

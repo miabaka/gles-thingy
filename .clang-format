@@ -13,5 +13,5 @@ SpaceBeforeCpp11BracedList: true
 AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Empty
 IndentCaseLabels: true
-SortIncludes: false
+SortIncludes: Never
 AlwaysBreakBeforeMultilineStrings: true

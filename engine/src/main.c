@@ -97,7 +97,7 @@ static void handleKeyPress(GLFWwindow *window, int key, int scancode, int action
 			.direction = newDirection
 	};
 
-	GameState_applyInputState(gameState, &inputState);
+	GameState_setInputState(gameState, &inputState);
 }
 
 int main(void) {

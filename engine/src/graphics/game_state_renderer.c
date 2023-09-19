@@ -86,7 +86,7 @@ static const char FRAGMENT_SHADER_SOURCE[] =
 		"const uvec2 TILE_SIZE = uvec2(4);\n"
 		"\n"
 		"void main() {\n"
-		"    uvec2 screenPos = uvec2(gl_FragCoord.x, 199u - uint(gl_FragCoord.y));\n"
+		"    uvec2 screenPos = uvec2(gl_FragCoord.xy);\n"
 		"    uvec2 tile = screenPos / TILE_SIZE;\n"
 		"    uvec2 tilePos = screenPos % TILE_SIZE;\n"
 		"\n"

@@ -13,22 +13,29 @@
 #include "utils/common.h"
 #include "utils/frame_counter.h"
 
-static const float QUAD_VERTICES[][2] = {
-		{-1.f, -1.f},
-		{-1.f,  1.f},
-		{ 1.f,  1.f},
-		{ 1.f,  1.f},
-		{ 1.f, -1.f},
-		{-1.f, -1.f}
+typedef struct __attribute__((packed)) {
+	float x, y, u, v;
+} Vertex;
+
+static const Vertex QUAD_VERTICES[] = {
+		{-1.f, -1.f, 0.f, 1.f},
+		{-1.f,  1.f, 0.f, 0.f},
+		{ 1.f,  1.f, 1.f, 0.f},
+		{ 1.f,  1.f, 1.f, 0.f},
+		{ 1.f, -1.f, 1.f, 1.f},
+		{-1.f, -1.f, 0.f, 1.f}
 };
 
 static const char VERTEX_SHADER_SOURCE[] =
 		"#version 300 es\n"
 		"\n"
-		"layout (location = 0) in vec2 aPos;\n"
+		"layout (location = 0) in vec4 aPosTexCoords;\n"
+		"\n"
+		"out vec2 vTexCoords;\n"
 		"\n"
 		"void main() {\n"
-		"    gl_Position = vec4(aPos, 0.0, 1.0);\n"
+		"    gl_Position = vec4(aPosTexCoords.xy, 0.0, 1.0);\n"
+		"    vTexCoords = aPosTexCoords.zw;\n"
 		"}\n";
 
 static const char FRAGMENT_SHADER_SOURCE[] =
@@ -38,10 +45,11 @@ static const char FRAGMENT_SHADER_SOURCE[] =
 		"\n"
 		"uniform sampler2D texSource;\n"
 		"\n"
+		"in vec2 vTexCoords;\n"
 		"out vec4 outColor;\n"
 		"\n"
 		"void main() {\n"
-		"    outColor = texture2D(texSource, vec2(gl_FragCoord) / vec2(640, 400));\n"
+		"    outColor = texture2D(texSource, vTexCoords);\n"
 		"}\n";
 
 static void printGlDebugMessage(
@@ -167,7 +175,7 @@ int main(void) {
 		glViewport(0, 0, 640, 400);
 
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, false, sizeof(QUAD_VERTICES[0]), QUAD_VERTICES);
+		glVertexAttribPointer(0, 4, GL_FLOAT, false, sizeof(QUAD_VERTICES[0]), QUAD_VERTICES);
 
 		glBindTexture(GL_TEXTURE_2D, texGameRender);
 
@@ -176,7 +184,7 @@ int main(void) {
 		glClearColor(0.f, 0.f, 0.f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(QUAD_VERTICES) / sizeof(QUAD_VERTICES[0]));
+		glDrawArrays(GL_TRIANGLES, 0, ARRAY_SIZE(QUAD_VERTICES));
 
 		glfwSwapBuffers(window);
 	}

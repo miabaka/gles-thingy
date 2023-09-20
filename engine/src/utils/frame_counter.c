@@ -10,8 +10,9 @@ void FrameCounter_init(FrameCounter *this, double logIntervalSeconds) {
 
 static void writeStats(const FrameCounter *counter) {
 	printf(
-			"%.1f fps :: %d frames in %.2f seconds\n",
+			"%.1f fps / %.3f mspf :: %d frames in %.2f seconds\n",
 			(double) counter->_frames / counter->_timeElapsedSeconds,
+			counter->_timeElapsedSeconds / (double) counter->_frames * 1000,
 			counter->_frames,
 			counter->_timeElapsedSeconds
 	);

@@ -177,6 +177,9 @@ static bool isPlayerCollidingWithEnemies(const GameState *state) {
 	for (size_t nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++) {
 		const Enemy *enemy = &state->enemies[nEnemy];
 
+		if (enemy->type == EnemyType_Disabled)
+			continue;
+
 		for (size_t nSide = 0; nSide < ARRAY_SIZE(sideOffsets); nSide++) {
 			int x = enemy->x + sideOffsets[nSide][0];
 			int y = enemy->y + sideOffsets[nSide][1];

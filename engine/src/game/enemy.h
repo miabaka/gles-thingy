@@ -16,11 +16,6 @@ typedef struct {
 	int velY;
 } Enemy;
 
-typedef enum {
-	EnemyUpdateResult_None,
-	EnemyUpdateResult_TouchedTrace
-} EnemyUpdateResult;
-
 void Enemy_init(Enemy *);
 
-EnemyUpdateResult Enemy_update(Enemy *, const Playfield *field);
+void Enemy_update(Enemy *, const Playfield *field);

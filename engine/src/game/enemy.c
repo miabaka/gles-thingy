@@ -14,10 +14,6 @@ static bool canMove(const Enemy *enemy, const Playfield *field, int dx, int dy) 
 	return Playfield_getTile(field, enemy->x + dx, enemy->y + dy) == Tile_Sea;
 }
 
-static bool hasTouchedTrace(const Enemy *enemy, const Playfield *field) {
-	return Playfield_getTile(field, enemy->x + enemy->velX, enemy->y + enemy->velY) == Tile_PlayerTrace;
-}
-
 static void updateVelocity(Enemy *enemy, const Playfield *field) {
 	int velX = enemy->velX;
 	int velY = enemy->velY;
@@ -40,15 +36,10 @@ static void applyVelocity(Enemy *enemy) {
 	enemy->y += enemy->velY;
 }
 
-EnemyUpdateResult Enemy_update(Enemy *this, const Playfield *field) {
+void Enemy_update(Enemy *this, const Playfield *field) {
 	if (this->type != EnemyType_Sea)
-		return EnemyUpdateResult_None;
-
-	if (hasTouchedTrace(this, field))
-		return EnemyUpdateResult_TouchedTrace;
+		return;
 
 	updateVelocity(this, field);
 	applyVelocity(this);
-
-	return EnemyUpdateResult_None;
 }

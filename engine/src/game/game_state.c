@@ -42,7 +42,7 @@ bool GameState_init(GameState *this, uint8_t fieldWidth, uint8_t fieldHeight) {
 		return false;
 
 	Player_init(&this->player);
-	reset(this, false);	
+	reset(this, false);
 
 	return true;
 }
@@ -148,12 +148,8 @@ static void updatePlayer(GameState *state) {
 }
 
 static void updateEnemies(GameState *state) {
-	for (size_t nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++) {
-		EnemyUpdateResult result = Enemy_update(&state->enemies[nEnemy], &state->field);
-
-		if (result == EnemyUpdateResult_TouchedTrace)
-			Player_kill(&state->player);
-	}
+	for (size_t nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++)
+		Enemy_update(&state->enemies[nEnemy], &state->field);
 }
 
 static void handleInput(GameState *state) {
@@ -161,8 +157,38 @@ static void handleInput(GameState *state) {
 		return;
 
 	Player_setDirection(&state->player, state->_inputState.direction);
-	
+
 	state->_inputHandled = true;
+}
+
+static bool isPlayerCollidingWithEnemies(const GameState *state) {
+	static const int sideOffsets[][2] = {
+			{ 0, -1},
+			{-1,  0},
+			{ 1,  0},
+			{ 0,  1}
+	};
+
+	const Player *player = &state->player;
+
+	if (player->state != PlayerState_SeaMoving)
+		return false;
+
+	for (size_t nEnemy = 0; nEnemy < ARRAY_SIZE(state->enemies); nEnemy++) {
+		const Enemy *enemy = &state->enemies[nEnemy];
+
+		for (size_t nSide = 0; nSide < ARRAY_SIZE(sideOffsets); nSide++) {
+			int x = enemy->x + sideOffsets[nSide][0];
+			int y = enemy->y + sideOffsets[nSide][1];
+
+			Tile tile = Playfield_getTile(&state->field, x, y);
+
+			if (tile == Tile_PlayerTrace || (x == player->x && y == player->y))
+				return true;
+		}
+	}
+
+	return false;
 }
 
 static void update(GameState *state) {
@@ -178,6 +204,9 @@ static void update(GameState *state) {
 
 	updatePlayer(state);
 	updateEnemies(state);
+
+	if (isPlayerCollidingWithEnemies(state))
+		Player_kill(player);
 }
 
 // TODO: handle situations when update itself is lagging

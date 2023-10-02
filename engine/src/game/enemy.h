@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../math/ivec2.h"
 #include "playfield.h"
 
 typedef enum {
@@ -10,10 +11,8 @@ typedef enum {
 
 typedef struct {
 	EnemyType type;
-	int x;
-	int y;
-	int velX;
-	int velY;
+	ivec2 position;
+	ivec2 velocity;
 } Enemy;
 
 void Enemy_init(Enemy *);

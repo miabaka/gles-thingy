@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 
+#include "../math/ivec2.h"
 #include "enemy.h"
 #include "input_state.h"
 #include "player.h"
@@ -14,8 +15,7 @@ typedef struct {
 	float _timeSinceLastUpdate;
 	Tile _tileUnderPlayer;
 	Tile _tilesUnderEnemies[32];
-	int _landX;
-	int _landY;
+	ivec2 _landPosition;
 	InputState _inputState;
 	bool _inputHandled;
 } GameState;

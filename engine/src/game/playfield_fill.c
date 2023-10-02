@@ -3,13 +3,8 @@
 #include "../utils/common.h"
 
 typedef struct {
-	int x;
-	int y;
-} Span;
-
-typedef struct {
 	size_t _topIndex;
-	Span _spans[128];
+	ivec2 _spans[128];
 } SpanStack;
 
 static void SpanStack_init(SpanStack *this) {
@@ -20,7 +15,7 @@ static bool SpanStack_isEmpty(const SpanStack *this) {
 	return this->_topIndex < 1;
 }
 
-static bool SpanStack_push(SpanStack *this, Span span) {
+static bool SpanStack_push(SpanStack *this, ivec2 span) {
 	if (this->_topIndex >= ARRAY_SIZE(this->_spans))
 		return false;
 
@@ -29,11 +24,11 @@ static bool SpanStack_push(SpanStack *this, Span span) {
 	return true;
 }
 
-static Span SpanStack_pop(SpanStack *this) {
-	return SpanStack_isEmpty(this) ? (Span) {0} : this->_spans[--this->_topIndex];
+static ivec2 SpanStack_pop(SpanStack *this) {
+	return SpanStack_isEmpty(this) ? (ivec2) {0, 0} : this->_spans[--this->_topIndex];
 }
 
-static bool fill(Playfield *field, Span span, Tile srcTile, Tile dstTile) {
+static bool fill(Playfield *field, ivec2 span, Tile srcTile, Tile dstTile) {
 	SpanStack stack;
 
 	SpanStack_init(&stack);
@@ -42,7 +37,7 @@ static bool fill(Playfield *field, Span span, Tile srcTile, Tile dstTile) {
 	while (!SpanStack_isEmpty(&stack)) {
 		span = SpanStack_pop(&stack);
 
-		while (span.x >= 0 && Playfield_getTile(field, span.x, span.y) == srcTile)
+		while (span.x >= 0 && Playfield_getTile(field, span) == srcTile)
 			span.x--;
 
 		span.x++;
@@ -50,14 +45,14 @@ static bool fill(Playfield *field, Span span, Tile srcTile, Tile dstTile) {
 		bool spanAbove = false;
 		bool spanBelow = false;
 
-		while (span.x < field->width && Playfield_getTile(field, span.x, span.y) == srcTile) {
-			Playfield_setTile(field, span.x, span.y, dstTile);
+		while (span.x < field->width && Playfield_getTile(field, span) == srcTile) {
+			Playfield_setTile(field, span, dstTile);
 
-			bool tileAboveMatches = (Playfield_getTile(field, span.x, span.y - 1) == srcTile);
-			bool tileBelowMatches = (Playfield_getTile(field, span.x, span.y + 1) == srcTile);
+			bool tileAboveMatches = (Playfield_getTile(field, (ivec2) {span.x, span.y - 1}) == srcTile);
+			bool tileBelowMatches = (Playfield_getTile(field, (ivec2) {span.x, span.y + 1}) == srcTile);
 
 			if (!spanAbove && span.y > 0 && tileAboveMatches) {
-				if (!SpanStack_push(&stack, (Span) {span.x, span.y - 1}))
+				if (!SpanStack_push(&stack, (ivec2) {span.x, span.y - 1}))
 					return false;
 
 				spanAbove = true;
@@ -66,7 +61,7 @@ static bool fill(Playfield *field, Span span, Tile srcTile, Tile dstTile) {
 			}
 
 			if (!spanBelow && span.y < field->height - 1 && tileBelowMatches) {
-				if (!SpanStack_push(&stack, (Span) {span.x, span.y + 1}))
+				if (!SpanStack_push(&stack, (ivec2) {span.x, span.y + 1}))
 					return false;
 
 				spanBelow = true;
@@ -81,7 +76,7 @@ static bool fill(Playfield *field, Span span, Tile srcTile, Tile dstTile) {
 	return true;
 }
 
-bool Playfield_fill(Playfield *this, int x, int y, Tile tile) {
-	Tile srcTile = Playfield_getTile(this, x, y);
-	return (tile == srcTile) || fill(this, (Span) {x, y}, srcTile, tile);
+bool Playfield_fill(Playfield *this, ivec2 pos, Tile tile) {
+	Tile srcTile = Playfield_getTile(this, pos);
+	return (tile == srcTile) || fill(this, pos, srcTile, tile);
 }

@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "../math/ivec2.h"
 #include "direction.h"
 #include "playfield.h"
 
@@ -15,8 +16,7 @@ typedef enum {
 typedef struct {
 	PlayerState state;
 	Direction direction;
-	int x;
-	int y;
+	ivec2 position;
 	int _lives;
 	bool _mustDie;
 } Player;
@@ -34,7 +34,7 @@ void Player_reset(Player *);
 
 void Player_resetMovement(Player *);
 
-void Player_setPosition(Player *, int x, int y);
+void Player_setPosition(Player *, ivec2 position);
 
 void Player_setDirection(Player *, Direction direction);
 

@@ -39,26 +39,26 @@ size_t Playfield_getSizeBytes(const Playfield *this) {
 	return sizeof(this->tiles[0]) * this->width * this->height;
 }
 
-bool Playfield_hasPoint(const Playfield *this, int x, int y) {
-	return x >= 0 && x < this->width && y >= 0 && y < this->height;
+bool Playfield_hasPoint(const Playfield *this, ivec2 pos) {
+	return pos.x >= 0 && pos.x < this->width && pos.y >= 0 && pos.y < this->height;
 }
 
-Tile Playfield_getTile(const Playfield *this, int x, int y) {
-	return Playfield_hasPoint(this, x, y) ? this->tiles[y * this->width + x] : Tile_Sea;
+Tile Playfield_getTile(const Playfield *this, ivec2 pos) {
+	return Playfield_hasPoint(this, pos) ? this->tiles[pos.y * this->width + pos.x] : Tile_Sea;
 }
 
-void Playfield_setTile(Playfield *this, int x, int y, Tile tile) {
-	if (!Playfield_hasPoint(this, x, y))
+void Playfield_setTile(Playfield *this, ivec2 pos, Tile tile) {
+	if (!Playfield_hasPoint(this, pos))
 		return;
 
-	this->tiles[y * this->width + x] = tile;
+	this->tiles[pos.y * this->width + pos.x] = tile;
 }
 
-Tile Playfield_exchangeTile(Playfield *this, int x, int y, Tile newTile) {
-	if (!Playfield_hasPoint(this, x, y))
+Tile Playfield_exchangeTile(Playfield *this, ivec2 pos, Tile newTile) {
+	if (!Playfield_hasPoint(this, pos))
 		return Tile_Sea;
 
-	Tile *tile = &this->tiles[y * this->width + x];
+	Tile *tile = &this->tiles[pos.y * this->width + pos.x];
 
 	Tile initialTile = *tile;
 	*tile = newTile;

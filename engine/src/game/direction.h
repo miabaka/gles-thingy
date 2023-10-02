@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "../math/ivec2.h"
 
 typedef enum {
 	Direction_None = 0,
@@ -10,6 +11,6 @@ typedef enum {
 	Direction_Down
 } Direction;
 
-void Direction_getVelocity(Direction, int *x, int *y);
+ivec2 Direction_toVelocity(Direction);
 
 bool Direction_isOpposite(Direction, Direction other);

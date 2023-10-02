@@ -1,29 +1,30 @@
 #include "direction.h"
 
-void Direction_getVelocity(Direction this, int *x, int *y) {
-	*x = 0;
-	*y = 0;
+ivec2 Direction_toVelocity(Direction this) {
+	ivec2 velocity = {0, 0};
 
 	switch (this) {
 		case Direction_Left:
-			*x = -1;
+			velocity.x = -1;
 			break;
 
 		case Direction_Right:
-			*x = 1;
+			velocity.x = 1;
 			break;
 
 		case Direction_Up:
-			*y = -1;
+			velocity.y = -1;
 			break;
 
 		case Direction_Down:
-			*y = 1;
+			velocity.y = 1;
 			break;
 
 		default:
 			break;
 	}
+
+	return velocity;
 }
 
 bool Direction_isOpposite(Direction this, Direction other) {

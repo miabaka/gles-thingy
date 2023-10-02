@@ -4,36 +4,31 @@
 
 void Enemy_init(Enemy *this) {
 	this->type = EnemyType_Disabled;
-	this->x = 0;
-	this->y = 0;
-	this->velX = 1;
-	this->velY = 1;
+	this->position = (ivec2) {0, 0};
+	this->velocity = (ivec2) {1, 1};
 }
 
-static bool canMove(const Enemy *enemy, const Playfield *field, int dx, int dy) {
-	return Playfield_getTile(field, enemy->x + dx, enemy->y + dy) == Tile_Sea;
+static bool canMove(const Enemy *enemy, const Playfield *field, ivec2 offset) {
+	return Playfield_getTile(field, ivec2_add(enemy->position, offset)) == Tile_Sea;
 }
 
 static void updateVelocity(Enemy *enemy, const Playfield *field) {
-	int velX = enemy->velX;
-	int velY = enemy->velY;
+	ivec2 velocity = enemy->velocity;
 
-	if (canMove(enemy, field, velX, velY))
+	if (canMove(enemy, field, velocity))
 		return;
 
-	if (canMove(enemy, field, -velX, velY)) {
-		enemy->velX = -velX;
-	} else if (canMove(enemy, field, velX, -velY)) {
-		enemy->velY = -velY;
+	if (canMove(enemy, field, (ivec2) {-velocity.x, velocity.y})) {
+		enemy->velocity.x = -velocity.x;
+	} else if (canMove(enemy, field, (ivec2) {velocity.x, -velocity.y})) {
+		enemy->velocity.y = -velocity.y;
 	} else {
-		enemy->velX = -velX;
-		enemy->velY = -velY;
+		enemy->velocity = (ivec2) {-velocity.x, -velocity.y};
 	}
 }
 
 static void applyVelocity(Enemy *enemy) {
-	enemy->x += enemy->velX;
-	enemy->y += enemy->velY;
+	enemy->position = ivec2_add(enemy->position, enemy->velocity);
 }
 
 void Enemy_update(Enemy *this, const Playfield *field) {

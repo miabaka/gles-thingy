@@ -13,13 +13,11 @@ void Player_reset(Player *this) {
 void Player_resetMovement(Player *this) {
 	this->state = PlayerState_Idle;
 	this->direction = Direction_None;
-	this->x = 0;
-	this->y = 0;
+	this->position = (ivec2) {0, 0};
 }
 
-void Player_setPosition(Player *this, int x, int y) {
-	this->x = x;
-	this->y = y;
+void Player_setPosition(Player *this, ivec2 position) {
+	this->position = position;
 }
 
 void Player_setDirection(Player *this, Direction direction) {
@@ -39,19 +37,14 @@ PlayerUpdateResult Player_update(Player *this, const Playfield *field) {
 		return PlayerUpdateResult_Died;
 	}
 
-	int velX, velY;
-	Direction_getVelocity(this->direction, &velX, &velY);
+	ivec2 newPosition = ivec2_add(this->position, Direction_toVelocity(this->direction));
 
-	int newX = this->x + velX;
-	int newY = this->y + velY;
-
-	if (!Playfield_hasPoint(field, newX, newY))
+	if (!Playfield_hasPoint(field, newPosition))
 		return PlayerUpdateResult_None;
 
-	Tile currentTile = Playfield_getTile(field, newX, newY);
+	Tile currentTile = Playfield_getTile(field, newPosition);
 
-	this->x = newX;
-	this->y = newY;
+	this->position = newPosition;
 
 	if (this->state == PlayerState_Idle)
 		this->state = PlayerState_LandMoving;
@@ -75,13 +68,9 @@ bool Player_willTouchTraceNextUpdate(const Player *this, const Playfield *field)
 	if (!Player_isAlive(this))
 		return false;
 
-	int velX, velY;
-	Direction_getVelocity(this->direction, &velX, &velY);
+	ivec2 newPosition = ivec2_add(this->position, Direction_toVelocity(this->direction));
 
-	int newX = this->x + velX;
-	int newY = this->y + velY;
-
-	return Playfield_getTile(field, newX, newY) == Tile_PlayerTrace;
+	return Playfield_getTile(field, newPosition) == Tile_PlayerTrace;
 }
 
 bool Player_isAlive(const Player *this) {

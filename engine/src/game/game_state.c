@@ -6,16 +6,14 @@
 static void resetPlayer(GameState *state) {
 	Player *player = &state->player;
 	Player_reset(player);
-	Player_setPosition(player, state->_landX, state->_landY);
+	Player_setPosition(player, state->_landPosition);
 }
 
 static void reset(GameState *state, bool resetField) {
 	if (resetField)
 		Playfield_reset(&state->field);
 
-	state->_landX = state->field.width / 2;
-	state->_landY = 1;
-
+	state->_landPosition = (ivec2) {state->field.width / 2, 0};
 	state->_timeSinceLastUpdate = 0.f;
 
 	resetPlayer(state);
@@ -27,12 +25,10 @@ static void reset(GameState *state, bool resetField) {
 		Enemy_init(&state->enemies[nEnemy]);
 
 	state->enemies[0].type = EnemyType_Sea;
-	state->enemies[0].x = 10;
-	state->enemies[0].y = 10;
+	state->enemies[0].position = (ivec2) {10, 10};
 
 	state->enemies[1].type = EnemyType_Sea;
-	state->enemies[1].x = 70;
-	state->enemies[1].y = 40;
+	state->enemies[1].position = (ivec2) {70, 40};
 }
 
 bool GameState_init(GameState *this, uint8_t fieldWidth, uint8_t fieldHeight) {
@@ -60,7 +56,7 @@ static void fillTracedArea(GameState *state) {
 		if (enemy->type != EnemyType_Sea)
 			continue;
 
-		Playfield_fill(field, enemy->x, enemy->y, Tile_FillVisitedSea);
+		Playfield_fill(field, enemy->position, Tile_FillVisitedSea);
 	}
 
 	for (size_t nTile = 0; nTile < Playfield_getSizeTiles(field); nTile++) {
@@ -84,7 +80,7 @@ static void fillTracedArea(GameState *state) {
 static void returnPlayerToLand(GameState *state) {
 	Player *player = &state->player;
 	Player_resetMovement(player);
-	Player_setPosition(player, state->_landX, state->_landY);
+	Player_setPosition(player, state->_landPosition);
 }
 
 static void clearPlayerTrace(GameState *state) {
@@ -102,8 +98,7 @@ static void handlePlayerDeath(GameState *state) {
 }
 
 static void adjustLandPosition(GameState *state) {
-	state->_landX = state->player.x;
-	state->_landY = state->player.y;
+	state->_landPosition = state->player.position;
 }
 
 static void prepareNextLevel(GameState *state) {
@@ -126,7 +121,7 @@ static void updatePlayer(GameState *state) {
 
 	switch (result) {
 		case PlayerUpdateResult_SeaMove:
-			Playfield_setTile(&state->field, player->x, player->y, Tile_PlayerTrace);
+			Playfield_setTile(&state->field, player->position, Tile_PlayerTrace);
 			break;
 
 		case PlayerUpdateResult_EnteredLand:
@@ -162,7 +157,7 @@ static void handleInput(GameState *state) {
 }
 
 static bool isPlayerCollidingWithEnemies(const GameState *state) {
-	static const int sideOffsets[][2] = {
+	static const ivec2 sideOffsets[] = {
 			{ 0, -1},
 			{-1,  0},
 			{ 1,  0},
@@ -181,12 +176,11 @@ static bool isPlayerCollidingWithEnemies(const GameState *state) {
 			continue;
 
 		for (size_t nSide = 0; nSide < ARRAY_SIZE(sideOffsets); nSide++) {
-			int x = enemy->x + sideOffsets[nSide][0];
-			int y = enemy->y + sideOffsets[nSide][1];
+			ivec2 p = ivec2_add(enemy->position, sideOffsets[nSide]);
 
-			Tile tile = Playfield_getTile(&state->field, x, y);
+			Tile tile = Playfield_getTile(&state->field, p);
 
-			if (tile == Tile_PlayerTrace || (x == player->x && y == player->y))
+			if (tile == Tile_PlayerTrace || (p.x == player->position.x && p.y == player->position.y))
 				return true;
 		}
 	}
@@ -232,7 +226,7 @@ void GameState_setInputState(GameState *this, const InputState *input) {
 void GameState_bakeDynamicObjects(GameState *this) {
 	Playfield *field = &this->field;
 
-	this->_tileUnderPlayer = Playfield_exchangeTile(field, this->player.x, this->player.y, Tile_PlayerHead);
+	this->_tileUnderPlayer = Playfield_exchangeTile(field, this->player.position, Tile_PlayerHead);
 
 	for (size_t nEnemy = 0; nEnemy < ARRAY_SIZE(this->enemies); nEnemy++) {
 		const Enemy *enemy = &this->enemies[nEnemy];
@@ -241,8 +235,7 @@ void GameState_bakeDynamicObjects(GameState *this) {
 			continue;
 
 		this->_tilesUnderEnemies[nEnemy] = Playfield_exchangeTile(
-				field,
-				enemy->x, enemy->y,
+				field, enemy->position,
 				(enemy->type == EnemyType_Sea) ? Tile_SeaEnemy : Tile_LandEnemy
 		);
 	}
@@ -257,8 +250,8 @@ void GameState_unbakeDynamicObjects(GameState *this) {
 		if (enemy->type == EnemyType_Disabled)
 			continue;
 
-		Playfield_setTile(field, enemy->x, enemy->y, this->_tilesUnderEnemies[nEnemy]);
+		Playfield_setTile(field, enemy->position, this->_tilesUnderEnemies[nEnemy]);
 	}
 
-	Playfield_setTile(field, this->player.x, this->player.y, this->_tileUnderPlayer);
+	Playfield_setTile(field, this->player.position, this->_tileUnderPlayer);
 }

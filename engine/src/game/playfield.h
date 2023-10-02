@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "../math/ivec2.h"
+
 typedef enum __attribute__((packed)) {
 	// Normal tiles
 	Tile_Sea = 0,
@@ -34,16 +36,16 @@ size_t Playfield_getSizeTiles(const Playfield *);
 
 size_t Playfield_getSizeBytes(const Playfield *);
 
-bool Playfield_hasPoint(const Playfield *, int x, int y);
+bool Playfield_hasPoint(const Playfield *, ivec2 position);
 
-Tile Playfield_getTile(const Playfield *, int x, int y);
+Tile Playfield_getTile(const Playfield *, ivec2 position);
 
-void Playfield_setTile(Playfield *, int x, int y, Tile tile);
+void Playfield_setTile(Playfield *, ivec2 position, Tile tile);
 
-Tile Playfield_exchangeTile(Playfield *, int x, int y, Tile newTile);
+Tile Playfield_exchangeTile(Playfield *, ivec2 position, Tile newTile);
 
 void Playfield_replaceTile(Playfield *, Tile oldTile, Tile newTile);
 
-bool Playfield_fill(Playfield *, int x, int y, Tile tile);
+bool Playfield_fill(Playfield *, ivec2 position, Tile tile);
 
 float Playfield_computeTileFraction(const Playfield *this, Tile tile);

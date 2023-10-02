@@ -22,6 +22,7 @@ add_executable(gles-thingy
 		src/graphics/game_state_renderer.h
 		src/graphics/gles_utils.c
 		src/graphics/gles_utils.h
+		src/math/ivec2.h
 		src/utils/common.h
 		src/utils/frame_counter.c
 		src/utils/frame_counter.h

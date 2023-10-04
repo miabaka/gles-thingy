@@ -176,11 +176,11 @@ static bool isPlayerCollidingWithEnemies(const GameState *state) {
 			continue;
 
 		for (size_t nSide = 0; nSide < ARRAY_SIZE(sideOffsets); nSide++) {
-			ivec2 p = ivec2_add(enemy->position, sideOffsets[nSide]);
+			ivec2 sideTilePosition = ivec2_add(enemy->position, sideOffsets[nSide]);
 
-			Tile tile = Playfield_getTile(&state->field, p);
+			Tile tile = Playfield_getTile(&state->field, sideTilePosition);
 
-			if (tile == Tile_PlayerTrace || (p.x == player->position.x && p.y == player->position.y))
+			if (tile == Tile_PlayerTrace || ivec2_isEqual(player->position, sideTilePosition))
 				return true;
 		}
 	}

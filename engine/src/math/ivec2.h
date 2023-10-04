@@ -10,3 +10,7 @@ typedef struct {
 static inline ivec2 ivec2_add(ivec2 a, ivec2 b) {
 	return (ivec2) {a.x + b.x, a.y + b.y};
 }
+
+static inline bool ivec2_isEqual(ivec2 a, ivec2 b) {
+	return a.x == b.x && a.y == b.y;
+}

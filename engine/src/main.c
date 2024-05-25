@@ -49,7 +49,7 @@ static const char FRAGMENT_SHADER_SOURCE[] =
 		"out vec4 outColor;\n"
 		"\n"
 		"void main() {\n"
-		"    outColor = texture2D(texSource, vTexCoords);\n"
+		"    outColor = texture(texSource, vTexCoords);\n"
 		"}\n";
 
 static void printGlDebugMessage(
